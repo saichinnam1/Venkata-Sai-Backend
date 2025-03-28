@@ -8,7 +8,7 @@ const app = express();
 // ✅ Enable CORS for Netlify Frontend
 app.use(
     cors({
-        origin: ["https://your-netlify-app.netlify.app"], // Replace with your actual Netlify frontend URL
+        origin: ["https://willowy-cupcake-dd71cd.netlify.app"], // Replace with actual Netlify URL
         methods: "GET,POST",
         credentials: true,
     })
@@ -16,20 +16,36 @@ app.use(
 
 app.use(express.json());
 
-// ✅ MySQL Connection
-const db = mysql.createConnection({
+// ✅ Log Environment Variables for Debugging (Remove this after testing)
+console.log("🔹 DB_HOST:", process.env.DB_HOST);
+console.log("🔹 DB_USER:", process.env.DB_USER);
+console.log("🔹 DB_NAME:", process.env.DB_NAME);
+console.log("🔹 DB_PORT:", process.env.DB_PORT);
+
+// ✅ Use MySQL Connection Pool (Better for Cloud Databases)
+const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10, // Allows multiple connections
+    queueLimit: 0,
+    ssl: {
+        require: true,
+        rejectUnauthorized: false, // ✅ Fixes connection issues with cloud MySQL
+    },
 });
 
-db.connect((err) => {
+// ✅ Check MySQL Connection
+db.getConnection((err, connection) => {
     if (err) {
-        console.error("Error connecting to MySQL:", err);
+        console.error("❌ Error connecting to MySQL:", err);
         return;
     }
-    console.log("Connected to MySQL database");
+    console.log("✅ Connected to MySQL database");
+    connection.release();
 });
 
 // ✅ API Endpoint to Handle Form Submission
@@ -47,10 +63,10 @@ app.post("/api/messages", (req, res) => {
     const query = "INSERT INTO messages (name, email, message) VALUES (?, ?, ?)";
     db.query(query, [name, email, message], (err, result) => {
         if (err) {
-            console.error("Error saving message:", err);
+            console.error("❌ Error saving message:", err);
             return res.status(500).json({ error: "Failed to save message" });
         }
-        console.log("Message saved successfully:", { name, email, message });
+        console.log("✅ Message saved successfully:", { name, email, message });
         res.status(200).json({ message: `Thank you, ${name}! Your message has been saved.` });
     });
 });
@@ -58,5 +74,5 @@ app.post("/api/messages", (req, res) => {
 // ✅ Start the Server (Use Render's PORT)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
