@@ -8,7 +8,7 @@ const app = express();
 // ✅ Enable CORS for Netlify Frontend
 app.use(
     cors({
-        origin: ["https://willowy-cupcake-dd71cd.netlify.app"], // Replace with actual Netlify URL
+        origin: ["https://funny-frangollo-35d697.netlify.app/"], // Replace with actual Netlify URL
         methods: "GET,POST",
         credentials: true,
     })
@@ -16,13 +16,13 @@ app.use(
 
 app.use(express.json());
 
-// ✅ Log Environment Variables for Debugging (Remove this after testing)
+// ✅ Debugging: Log Database Details (Remove after testing)
 console.log("🔹 DB_HOST:", process.env.DB_HOST);
+console.log("🔹 DB_PORT:", process.env.DB_PORT);
 console.log("🔹 DB_USER:", process.env.DB_USER);
 console.log("🔹 DB_NAME:", process.env.DB_NAME);
-console.log("🔹 DB_PORT:", process.env.DB_PORT);
 
-// ✅ Use MySQL Connection Pool (Better for Cloud Databases)
+// ✅ Use MySQL Connection Pool with SSL (Required for Cloud Databases)
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -30,7 +30,7 @@ const db = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
-    connectionLimit: 10, // Allows multiple connections
+    connectionLimit: 10,
     queueLimit: 0,
     ssl: {
         require: true,
