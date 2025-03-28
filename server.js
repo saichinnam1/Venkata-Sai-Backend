@@ -8,7 +8,7 @@ const app = express();
 // ✅ Enable CORS for Netlify Frontend
 app.use(
     cors({
-        origin: ["https://funny-frangollo-35d697.netlify.app/"], // Replace with actual Netlify URL
+        origin: ["https://venkatasaikumarchinnam.netlify.app"], // Replace with actual Netlify URL
         methods: "GET,POST",
         credentials: true,
     })
